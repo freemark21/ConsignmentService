@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "ConsignmentService": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
