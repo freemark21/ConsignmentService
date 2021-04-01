@@ -17,7 +17,7 @@ namespace ConsignmentService
 
         public Worker(ILogger<Worker> logger)
         {
-            watchPath = @"\C\Test\SupplyPro";
+            watchPath = @"\\REP-APP\SFTP_ROOT\SupplyPro\conissu";
             
             _logger = logger;
         }
