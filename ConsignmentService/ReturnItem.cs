@@ -24,5 +24,7 @@ namespace ConsignmentService
 
         public string SupplyProPrice { get; set; }
 
+        public string ShipTo { get; set; }
+
     }
 }
