@@ -27,8 +27,8 @@ namespace ConsignmentService
         public string User3 { get; set; }
         public string User4 { get; set; }
         public string User5 { get; set; }
-        public int User6 { get; set; }
-        public int User7 { get; set; }
+        public string User6 { get; set; }
+        public string User7 { get; set; }
         public object User8 { get; set; }
         public object User9 { get; set; }
         public string SastazRowID { get; set; }

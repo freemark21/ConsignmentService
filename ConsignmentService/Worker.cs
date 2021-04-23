@@ -4,22 +4,27 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Thinktecture.IdentityModel.Client;
 
 namespace ConsignmentService
 {
     public class Worker : BackgroundService
     {
         private readonly string watchPath;
+        private static OAuth2Client oAuth2Client;
         private readonly ILogger<Worker> _logger;
+
 
         public Worker(ILogger<Worker> logger)
         {
-            watchPath = @"\\REP-APP\SFTP_ROOT\SupplyPro\conissu";
-            
+            watchPath = @"\\REP-APP\SFTP_ROOT\supplypro\conissu\";
             _logger = logger;
+            
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
@@ -95,6 +100,12 @@ namespace ConsignmentService
                 using FileStream destinationFileStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write);
                 using StreamWriter streamWriter = new StreamWriter(destinationFileStream);
                 DataAccess dataAccess = new DataAccess();
+                oAuth2Client = new OAuth2Client(new Uri(OAuth2TokenEndpoint), ResourceOwnerClientId, ResourceOwnerClientSecret);
+                TokenResponse token = APIhelper.RequestToken(oAuth2Client, ServiceAccountAccessKey, ServiceAccountSecretKey);
+                if (!token.IsError)
+                {
+                    APIhelper.APIclient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.AccessToken);
+                }
                 try
                 {
                     string[] lines = File.ReadAllLines(path);
@@ -132,8 +143,17 @@ namespace ConsignmentService
                                 returnItem.UnitOfIssue = col[38];
                                 returnItem.SupplyProPrice = col[20];
                                 returnItem.ProductName = col[5];
+                                if (!token.IsError)
+                                {
+                                    Task<Ttblsastaz> ttblsastaz = APIhelper.GetShipTo(token, cono, customerNumber, returnItem.UserID, FetchWhere);
+                                    if (ttblsastaz.Result.Codeval[0] != null)
+                                    {
+                                        returnItem.ShipTo = ttblsastaz.Result.Codeval[0];
+                                    }
+                                }
                                 try
                                 {
+
                                     dataAccess.InsertReturnItem(returnItem);
                                 }
                                 catch (Exception e)
@@ -164,6 +184,14 @@ namespace ConsignmentService
                                         returnItem.UnitOfIssue = col[38];
                                         returnItem.SupplyProPrice = col[20];
                                         returnItem.ProductName = col[5];
+                                        if (!token.IsError)
+                                        {
+                                            Task<Ttblsastaz> ttblsastaz =  APIhelper.GetShipTo(token, cono, customerNumber, returnItem.UserID, FetchWhere);
+                                            if (ttblsastaz.Result.Codeval[0] != "")
+                                            {
+                                                returnItem.ShipTo = ttblsastaz.Result.Codeval[0];
+                                            }
+                                        }
                                         try
                                         {
                                             dataAccess.InsertReturnItem(returnItem);
@@ -239,6 +267,7 @@ namespace ConsignmentService
         {
             try
             {
+                APIhelper.Initialize();
                 Watch(watchPath);
                 _logger.LogInformation("conissu being watched");
                 await Task.Delay(Timeout.Infinite, stoppingToken);

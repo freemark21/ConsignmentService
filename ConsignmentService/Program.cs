@@ -17,7 +17,7 @@ namespace ConsignmentService
                 .MinimumLevel.Debug()
                 .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
                 .Enrich.FromLogContext()
-                .WriteTo.File(@"\\REP-APP\temp\conissu\log.txt", rollingInterval: RollingInterval.Day)
+                .WriteTo.File(@"C:\Test\log.txt", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             try
