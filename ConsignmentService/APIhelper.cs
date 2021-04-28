@@ -43,6 +43,27 @@ namespace ConsignmentService
                     Rootobject rootobject = await response.Content.ReadAsAsync<Rootobject>();
                     Ttblsastaz ttblsastaz = rootobject.Ttblsastaz[0];
                     return ttblsastaz;
+
+                }
+                else
+                {
+                    throw new Exception(response.ReasonPhrase);
+                }
+            }
+        }
+
+        public static async Task<Ttblarss> GetShipToWhse(TokenResponse token, string cono, string customerNumber, string shipTo, Uri uri)
+        {
+            var quote = "\"";
+            string fetchWhereQuery = $"{{\r\n  {quote}CompanyNumber{quote}: 1,\r\n  {quote}Operator{quote}: {quote}sys{quote},\r\n  {quote}TableName{quote}: {quote}arss{quote},\r\n  {quote}WhereClause{quote}: {quote}arss.cono= {cono} and arss.custno='{customerNumber}' and arss.shipto= '{shipTo}'{quote},\r\n  {quote}BatchSize{quote}: 1\r\n}}";
+            var content = new StringContent(fetchWhereQuery, Encoding.UTF8, "application/json");
+            using (HttpResponseMessage response = await APIclient.PostAsync(uri, content))
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    ARSSrootobject arssRootobject = await response.Content.ReadAsAsync<ARSSrootobject>();
+                    Ttblarss ttblarss = arssRootobject.ttblarss[0];
+                    return ttblarss;
                 }
                 else
                 {

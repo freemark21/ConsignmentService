@@ -22,7 +22,7 @@ namespace ConsignmentService
 
         public Worker(ILogger<Worker> logger)
         {
-            watchPath = @"\\REP-APP\SFTP_ROOT\supplypro\conissu\";
+            watchPath = @"C:\test\supplypro";
             _logger = logger;
             
         }
@@ -143,12 +143,14 @@ namespace ConsignmentService
                                 returnItem.UnitOfIssue = col[38];
                                 returnItem.SupplyProPrice = col[20];
                                 returnItem.ProductName = col[5];
+                                string[] deptSplit = col[0].Split('-');
+                                returnItem.ShipTo = deptSplit[2];
                                 if (!token.IsError)
                                 {
-                                    Task<Ttblsastaz> ttblsastaz = APIhelper.GetShipTo(token, cono, customerNumber, returnItem.UserID, FetchWhere);
-                                    if (ttblsastaz.Result.Codeval[0] != null)
+                                    Task<Ttblarss> ttblarss = APIhelper.GetShipToWhse(token, cono, customerNumber, returnItem.ShipTo, FetchWhere);
+                                    if (ttblarss.Result.whse != null)
                                     {
-                                        returnItem.ShipTo = ttblsastaz.Result.Codeval[0];
+                                        returnItem.ShipToWhse = ttblarss.Result.whse;
                                     }
                                 }
                                 try
@@ -190,6 +192,11 @@ namespace ConsignmentService
                                             if (ttblsastaz.Result.Codeval[0] != "")
                                             {
                                                 returnItem.ShipTo = ttblsastaz.Result.Codeval[0];
+                                            }
+                                            Task<Ttblarss> ttblarss = APIhelper.GetShipToWhse(token, cono, customerNumber, returnItem.ShipTo, FetchWhere);
+                                            if (ttblarss.Result.whse != null)
+                                            {
+                                                returnItem.ShipToWhse = ttblarss.Result.whse;
                                             }
                                         }
                                         try
