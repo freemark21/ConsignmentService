@@ -25,7 +25,6 @@ namespace ConsignmentService
                 parameters.Add("@ProductName", returnItem.ProductName);
                 parameters.Add("@SupplyProPrice", returnItem.SupplyProPrice);
                 parameters.Add("@ShipTo", returnItem.ShipTo);
-                parameters.Add("@ShipToWhse", returnItem.ShipToWhse);
 
                 //execute stored procedure
                 connection.Query("spConsignmentReturns_InsertReturnItem", parameters, commandType: CommandType.StoredProcedure);

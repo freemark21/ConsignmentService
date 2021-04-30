@@ -22,7 +22,8 @@ namespace ConsignmentService
 
         public Worker(ILogger<Worker> logger)
         {
-            watchPath = @"C:\test\supplypro";
+            //watchPath = @"C:\test\supplypro";
+            watchPath = @"\\REP-APP\SFTP_ROOT\supplypro\conissu";
             _logger = logger;
             
         }
@@ -127,11 +128,14 @@ namespace ConsignmentService
                     {
                         string[] col = line.Split('|');
                         bool success = Int32.TryParse(col[17], out int quantity);
+                        if (quantity == 0)
+                        {
+                            continue;
+                        }
                         if (col[4].ToUpper() == "RETURN")
                         {
                             if (success)
                             {
-                                quantity *= -1;
                                 string[] device = col[34].Split("-");
                                 ReturnItem returnItem = new ReturnItem();
                                 returnItem.CustomerNumber = customerNumber;
@@ -145,17 +149,8 @@ namespace ConsignmentService
                                 returnItem.ProductName = col[5];
                                 string[] deptSplit = col[0].Split('-');
                                 returnItem.ShipTo = deptSplit[2];
-                                if (!token.IsError)
-                                {
-                                    Task<Ttblarss> ttblarss = APIhelper.GetShipToWhse(token, cono, customerNumber, returnItem.ShipTo, FetchWhere);
-                                    if (ttblarss.Result.whse != null)
-                                    {
-                                        returnItem.ShipToWhse = ttblarss.Result.whse;
-                                    }
-                                }
                                 try
                                 {
-
                                     dataAccess.InsertReturnItem(returnItem);
                                 }
                                 catch (Exception e)
@@ -189,14 +184,9 @@ namespace ConsignmentService
                                         if (!token.IsError)
                                         {
                                             Task<Ttblsastaz> ttblsastaz =  APIhelper.GetShipTo(token, cono, customerNumber, returnItem.UserID, FetchWhere);
-                                            if (ttblsastaz.Result.Codeval[0] != "")
+                                            if (ttblsastaz.Result != null)
                                             {
                                                 returnItem.ShipTo = ttblsastaz.Result.Codeval[0];
-                                            }
-                                            Task<Ttblarss> ttblarss = APIhelper.GetShipToWhse(token, cono, customerNumber, returnItem.ShipTo, FetchWhere);
-                                            if (ttblarss.Result.whse != null)
-                                            {
-                                                returnItem.ShipToWhse = ttblarss.Result.whse;
                                             }
                                         }
                                         try

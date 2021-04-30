@@ -26,7 +26,5 @@ namespace ConsignmentService
 
         public string ShipTo { get; set; }
 
-        public string ShipToWhse { get; set; }
-
     }
 }
